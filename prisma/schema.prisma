@@ -1,0 +1,126 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Settings {
+  id              String   @id @default("default")
+  zohoOrgId       String   @default("")
+  anthropicApiKey String   @default("")
+  aiModel         String   @default("claude-sonnet-4-20250514")
+  aiTemperature   Float    @default(0.3)
+  cacheMinutes    Int      @default(15)
+  currency        String   @default("USD")
+  fiscalYearStart String   @default("01")
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+}
+
+model Conversation {
+  id        String    @id @default(cuid())
+  title     String    @default("New Conversation")
+  summary   String    @default("")
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+
+  messages  Message[]
+}
+
+model Message {
+  id             String       @id @default(cuid())
+  conversationId String
+  conversation   Conversation @relation(fields: [conversationId], references: [id], onDelete: Cascade)
+  role           String
+  content        String
+  metadata       String       @default("{}")
+  createdAt      DateTime     @default(now())
+}
+
+model ZohoCache {
+  id        String   @id @default(cuid())
+  endpoint  String
+  params    String   @default("{}")
+  cacheKey  String   @unique
+  data      String
+  expiresAt DateTime
+  createdAt DateTime @default(now())
+}
+
+model SavedReport {
+  id         String   @id @default(cuid())
+  title      String
+  reportType String
+  dateRange  String   @default("")
+  content    String
+  summary    String   @default("")
+  metadata   String   @default("{}")
+  createdAt  DateTime @default(now())
+}
+
+model FlaggedTransaction {
+  id              String    @id @default(cuid())
+  zohoTransId     String
+  transactionType String
+  flagReason      String
+  severity        String    @default("info")
+  status          String    @default("pending")
+  aiNotes         String    @default("")
+  createdAt       DateTime  @default(now())
+  reviewedAt      DateTime?
+}
+
+model ZohoTokens {
+  id           String   @id @default("default")
+  accessToken  String
+  refreshToken String
+  expiresAt    DateTime
+  clientId     String   @default("")
+  clientSecret String   @default("")
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+}
+
+model AuditLog {
+  id          String   @id @default(cuid())
+  action      String
+  endpoint    String
+  method      String   @default("GET")
+  requestBody String   @default("{}")
+  responseBody String  @default("{}")
+  status      String   @default("success")
+  error       String   @default("")
+  aiInitiated Boolean  @default(false)
+  createdAt   DateTime @default(now())
+}
+
+model BookkeepingRule {
+  id          String   @id @default(cuid())
+  ruleType    String
+  pattern     String
+  category    String
+  accountId   String   @default("")
+  accountName String   @default("")
+  confidence  Float    @default(1.0)
+  usageCount  Int      @default(0)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+model AuditFinding {
+  id          String    @id @default(cuid())
+  findingType String
+  severity    String    @default("info")
+  title       String
+  description String
+  entityType  String    @default("")
+  entityId    String    @default("")
+  amount      Float     @default(0)
+  status      String    @default("open")
+  resolution  String    @default("")
+  createdAt   DateTime  @default(now())
+  resolvedAt  DateTime?
+}
