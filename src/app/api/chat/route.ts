@@ -65,11 +65,14 @@ export async function POST(request: NextRequest) {
       }));
     claudeMessages.push({ role: "user", content: message });
 
+    const aiModel = settings?.aiModel || "claude-sonnet-4-20250514";
+    const aiTemperature = settings?.aiTemperature ?? 0.3;
+
     // Call Claude with tools
     let response = await chatWithClaude({
       apiKey,
-      model: settings.aiModel,
-      temperature: settings.aiTemperature,
+      model: aiModel,
+      temperature: aiTemperature,
       systemPrompt: BOOKKEEPER_SYSTEM_PROMPT,
       messages: claudeMessages,
       tools: BOOKKEEPER_TOOLS,
@@ -128,8 +131,8 @@ export async function POST(request: NextRequest) {
 
       response = await chatWithClaude({
         apiKey,
-        model: settings.aiModel,
-        temperature: settings.aiTemperature,
+        model: aiModel,
+        temperature: aiTemperature,
         systemPrompt: BOOKKEEPER_SYSTEM_PROMPT,
         messages: claudeMessages,
         tools: BOOKKEEPER_TOOLS,
@@ -150,7 +153,7 @@ export async function POST(request: NextRequest) {
         content: assistantMessage,
         metadata: JSON.stringify({
           toolsUsed,
-          model: settings.aiModel,
+          model: aiModel,
           tokens: response.usage,
           toolLoops: toolLoopCount,
         }),

@@ -20,7 +20,7 @@ export async function POST(request: NextRequest) {
     }
 
     const connected = await isZohoConnected();
-    const currency = settings.currency || "CAD";
+    const currency = settings?.currency || "CAD";
 
     // Fetch real data from Zoho if connected
     let financialData = "";
